@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
 
+# Calculates the avg rating per movie id
+
 import csv, json
 
 with open('../data/ratings.csv') as csvfile:
