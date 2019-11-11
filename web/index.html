@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF8">
-  <title>Movie Graph</title>
+  <title>Movie graph</title>
 
   <script type="text/javascript" src="js/vis-network.min.js"></script>
 
@@ -12,71 +12,176 @@
   <script src="js/genres.js"></script>
 
   <style type="text/css">
-    #graph {
-      width: 800px;
-      height: 800px;
+    #netContainer {
+      width: 95%;
+      height:85vh;
       border: 1px solid lightgray;
-    }
-    #mynetwork {
-      width: 600px;
-      height: 400px;
-      border: 1px solid lightgray;
+      margin-top: 10px;
     }
   </style>
   
 </head>
-<body>
+<body onload="startNetwork()">
+<h3>Movie graph visualization</h3>
 
-<!-- <form onsubmit="searchFn(this)"> -->
-  Search: <input type="text" id="search"><br>
-  <input type="submit" value="Submit" onclick="searchFn(this)">
-<!-- </form> -->
+Search: <input type="text" id="search" value="Tom Hanks">
+<input type="radio" name="searchType" checked> Person
+<input type="radio" name="searchType" id="movieType"> Movie
+<input type="submit" value="Submit" onclick="searchFn()">
+<small>Type part of a movie title or a person's name (e.g. "tom", "steve", "wars", "batman"). Zoom in/out and pan. Movies are circles and People triangles</small>
 
-<div id="mynetwork"></div>
+<div id="netContainer"></div>
 
 </body>
 <script>
-  var nodes, edges;
-  // create a network
-  var container = document.getElementById('mynetwork');
-  
+  var nodes, edges, network, MAX_NODES = 100;
+  var netContainer = document.getElementById('netContainer');
 
-  function searchFn() {
-    var searchValue = document.getElementById("search").value.toLowerCase();
-    var subset = talent.filter(i => i['name'].toLowerCase().includes(searchValue))
-    if (subset.length < 1) {
-      console.error('no match');
-    }
-    console.log(subset[0]);
-    addRootTalent(subset[0]);
+  // create a network
+  function startNetwork() {
+    nodes = new vis.DataSet([]);
+    edges = new vis.DataSet([]);
+
     var data = {
       nodes: nodes,
       edges: edges
     };
-    var options = {};
-    var network = new vis.Network(container, data, options);
+
+    var netOptions = {
+        nodes: {
+            shape: 'dot',
+            size: 16
+        },
+        physics: {
+            forceAtlas2Based: {
+                gravitationalConstant: -26,
+                centralGravity: 0.005,
+                springLength: 230,
+                springConstant: 0.18
+            },
+            maxVelocity: 146,
+            solver: 'forceAtlas2Based',
+            timestep: 0.35,
+            stabilization: {iterations: 150}
+        },
+        groups: {
+          0: {
+            shape: 'triangle',
+            color: '#FF9900' // orange
+          },
+          1: {
+            shape: 'dot',
+            color: "#2B7CE9" // blue
+          }
+        }
+    };
+
+    netContainer.
+    network = new vis.Network(netContainer, data, netOptions);
+
+    var tom = talent.find(i => i.name == 'Tom Hanks');
+    addRoot(tom);
+  }
+  
+  function clearData() {
+    nodes.clear();
+    edges.clear();
+    nodes.add([]);
+    edges.add([]);
   }
 
-  function addRootTalent(node) {
-    nodes = [];
-    edges = [];
+  function searchFn() {
+    var searchValue = document.getElementById("search").value.toLowerCase(),
+      movieType = document.getElementById("movieType").checked,
+      node;
 
-    var id = 't' + node.talent_id
-    nodes.push(Object.assign({id: id, label: node.name}, node));
-    node.movies.forEach((movie) => {
-      var to = addMovie(movie)
-      if (to) {
-        edges.push({from: id, to: to});  
+    if (movieType) {
+      node = movies.find(m => m.title.toLowerCase().includes(searchValue));
+    }
+    else { // Search people
+      node = talent.find(t => t.name.toLowerCase().includes(searchValue));
+    }
+
+    if (node == undefined) {
+      alert('No match');
+      return;
+    }
+    addRoot(node);
+  }
+
+  function getNodeId(node) {
+    return 'talent_id' in node ? 't' + node.talent_id : node.id;
+  }
+
+  function getNodeById(id) {
+    var isTalent = typeof id == 'string' && id.startsWith('t');
+    if (isTalent) {
+      return talent.find(t => t.talent_id == parseInt(id.substr(1)));
+    }
+    else {
+      return movies.find(m => m.id == id);
+    }
+  }
+
+  function createNetworkNode(currentId, node) {
+    if (nodes.get(currentId) != null) {return;}
+
+    var label, group, title;
+
+    if ('talent_id' in node) { // Talent
+      label = node.name;
+      group = 0;
+      title = label;
+    } else { // Movie
+      label = node.title
+      group = 1;
+      var efficiency = node.budget > 0 ? node.rating/node.budget*10000000 : 0;
+      title = `<b>Efficiency</b>: ${efficiency}`;
+    }
+
+    var nodeData = {
+      id: currentId,
+      label: label,
+      group: group,
+      title: title
+    }
+
+    //nodes.add(Object.assign({id: currentId, label: label, group: group}, node));
+    nodes.add(nodeData);
+  }
+
+  function getNodeChildrenIds(node) {
+    return 'movies' in node ? node.movies : node.talent.map(id => 't' + id);
+  }
+
+  function addRoot(node) {
+    var queue = [], node, currentId, visited = new Set(), counter = 0;
+    clearData();
+
+    queue.push(getNodeId(node));
+
+    while (queue.length > 0 && counter <= MAX_NODES) {
+      counter ++;
+      currentId = queue.shift();
+      console.log('Processing ', currentId);
+      visited.add(currentId);
+      node = getNodeById(currentId);
+      if (node ==  undefined) {
+        continue;
       }
-    });
+      createNetworkNode(currentId, node);
+      getNodeChildrenIds(node).forEach((childId) => {
+        if (!visited.has(childId)) {
+          var child = getNodeById(childId);
+          if (child != undefined) {
+            createNetworkNode(childId, child);
+            edges.add({from: currentId, to: childId}); 
+            queue.push(childId);
+          }
+        }
+      });
+    }
   }
 
-  function addMovie(movieId) {
-    console.log('movieId: ',movieId);
-    var movie = movies.find(m => m.id == movieId);
-    if (!movie) return;
-    nodes.push(Object.assign({label: movie.title}, movie))
-    return movie.id;
-  }
 </script>
 </html>
