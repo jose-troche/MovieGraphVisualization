@@ -20,5 +20,35 @@
   </style>
   
 </head>
-<body></body>
+<body>
+
+<!-- <form onsubmit="searchFn(this)"> -->
+  Search: <input type="text" id="search"><br>
+  <input type="submit" value="Submit" onclick="searchFn(this)">
+<!-- </form> -->
+
+
+
+</body>
+<script>
+  var nodes, edges;
+  function searchFn() {
+    var searchValue = document.getElementById("search").value.toLowerCase();
+    var subset = talent.filter(i => i['name'].toLowerCase().includes(searchValue))
+    if (subset.length < 1) {
+      console.error('no match');
+    }
+    console.log(subset[0]);
+    addRootTalent(subset[0])
+  }
+
+  function addRootTalent(node) {
+    nodes = [];
+    edges = [];
+    nodes.push(node);
+    node.movies.forEach((movie) => {
+      addMovie(movie)
+    });
+  }
+</script>
 </html>
