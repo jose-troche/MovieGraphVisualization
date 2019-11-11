@@ -17,6 +17,11 @@
       height: 800px;
       border: 1px solid lightgray;
     }
+    #mynetwork {
+      width: 600px;
+      height: 400px;
+      border: 1px solid lightgray;
+    }
   </style>
   
 </head>
@@ -27,11 +32,15 @@
   <input type="submit" value="Submit" onclick="searchFn(this)">
 <!-- </form> -->
 
-
+<div id="mynetwork"></div>
 
 </body>
 <script>
   var nodes, edges;
+  // create a network
+  var container = document.getElementById('mynetwork');
+  
+
   function searchFn() {
     var searchValue = document.getElementById("search").value.toLowerCase();
     var subset = talent.filter(i => i['name'].toLowerCase().includes(searchValue))
@@ -39,16 +48,35 @@
       console.error('no match');
     }
     console.log(subset[0]);
-    addRootTalent(subset[0])
+    addRootTalent(subset[0]);
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+    var options = {};
+    var network = new vis.Network(container, data, options);
   }
 
   function addRootTalent(node) {
     nodes = [];
     edges = [];
-    nodes.push(node);
+
+    var id = 't' + node.talent_id
+    nodes.push(Object.assign({id: id, label: node.name}, node));
     node.movies.forEach((movie) => {
-      addMovie(movie)
+      var to = addMovie(movie)
+      if (to) {
+        edges.push({from: id, to: to});  
+      }
     });
+  }
+
+  function addMovie(movieId) {
+    console.log('movieId: ',movieId);
+    var movie = movies.find(m => m.id == movieId);
+    if (!movie) return;
+    nodes.push(Object.assign({label: movie.title}, movie))
+    return movie.id;
   }
 </script>
 </html>
