@@ -2,10 +2,10 @@
 
 ## Website
 * 1000 movies with a depth of 40
-https://movie-visualizer.s3-us-west-2.amazonaws.com/index.html
+  * https://movie-visualizer.s3-us-west-2.amazonaws.com/index.html
 
 * All movies with a depth of 3. It takes a while to load the first time, but then is fine
-https://movie-visualizer.s3-us-west-2.amazonaws.com/index_full.html
+  * https://movie-visualizer.s3-us-west-2.amazonaws.com/index_full.html
 
 
 
