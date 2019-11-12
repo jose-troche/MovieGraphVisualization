@@ -6,8 +6,8 @@
 
   <script type="text/javascript" src="js/vis-network.min.js"></script>
 
-  <script src="js/movies_1000.js"></script>
-  <script src="js/talent_1000.js"></script>
+  <script src="js/movies_full.js"></script>
+  <script src="js/talent_full.js"></script>
   <script src="js/collections.js"></script>
   <script src="js/genres.js"></script>
 
@@ -24,9 +24,9 @@
 <body onload="startNetwork()">
 <h3>Movie graph visualization</h3>
 
-Search: <input type="text" id="search" value="Tom Hanks">
-<input type="radio" name="searchType" checked> Person
-<input type="radio" name="searchType" id="movieType"> Movie
+Search: <input type="text" id="search" value="Tom and Huck">
+<input type="radio" name="searchType"> Person
+<input type="radio" name="searchType" id="movieType" checked> Movie
 <input type="submit" value="Search" onclick="searchFn()">
 <small>Type partial movie title or a person's name (e.g. "tom", "spielberg", "wars", "batman"). Zoom in/out and pan. Click on node for more data</small>
 
@@ -34,7 +34,7 @@ Search: <input type="text" id="search" value="Tom Hanks">
 
 </body>
 <script>
-  var nodes, edges, network, MAX_LEVELS = 40;
+  var nodes, edges, network, MAX_LEVELS = 3;
   var netContainer = document.getElementById('netContainer');
 
   // create a network
@@ -79,7 +79,7 @@ Search: <input type="text" id="search" value="Tom Hanks">
     netContainer.
     network = new vis.Network(netContainer, data, netOptions);
 
-    var tom = talent.find(i => i.name == 'Tom Hanks');
+    var tom = movies.find(i => i.title == 'Tom and Huck');
     addRoot(tom);
   }
   
