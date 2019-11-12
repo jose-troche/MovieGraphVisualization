@@ -1,10 +1,11 @@
 # MovieGraphVisualization
 
 ## Website
-* 1000 movies with a depth of 40
+* 1000 movies
+  * https://jose-troche.github.io/MovieGraphVisualization/web/index.html
   * https://movie-visualizer.s3-us-west-2.amazonaws.com/index.html
 
-* All movies with a depth of 3. It takes a while to load the first time, but then is fine
+* All movies (graph gets children of first 3 children of root). It takes a while to load the first time, but then is fine
   * https://movie-visualizer.s3-us-west-2.amazonaws.com/index_full.html
 
 
