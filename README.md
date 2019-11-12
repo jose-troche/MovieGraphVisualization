@@ -82,9 +82,7 @@ General approch:
   * **collections**: list of collections ids and names
   * **genres**: list of movie gender ids and names
 
-This new structures make it easy to build the graph of movies and talent with the correspondent data for each
-
-The full dataset was used and is able to be served from the website, but for dev reasons only 1000 records from each **talent** and **movies** are used
+These new structures make it easy to build the graph of movies and talent with the correspondent data for each
 
 ## Source dataset
 An application to visualize data from https://www.kaggle.com/rounakbanik/the-movies-dataset
