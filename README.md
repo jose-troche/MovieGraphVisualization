@@ -7,6 +7,7 @@
 
 * All movies (graph gets children of first 3 children of root). It takes a while to load the first time, but then is fine
   * https://movie-visualizer.s3-us-west-2.amazonaws.com/index_full.html
+  * https://jose-troche.github.io/MovieGraphVisualization/web/index_full.html
 
 
 
